@@ -105,10 +105,7 @@ for i in 0; do
         --private-ip-address 10.240.0.1${i} \
         --public-ip-address master-${i}-pip \
         --vnet kubernetes-vnet \
-        --subnet kubernetes-subnet \
-        --ip-forwarding \
-        --lb-name kubernetes-lb \
-        --lb-address-pools kubernetes-lb-pool > /dev/null
+        --subnet kubernetes-subnet 
 
     echo "[Master ${i}] Creating VM..."
     az vm create -g kubernetes \
