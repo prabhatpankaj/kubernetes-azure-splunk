@@ -65,8 +65,6 @@ az network nsg rule create -g kubernetes \
   --priority 1001
 ```
 
-> An [external load balancer](https://docs.microsoft.com/en-us/azure/load-balancer/load-balancer-overview) will be used to expose the Kubernetes API Servers to remote clients.
-
 List the firewall rules in the `kubernetes-vnet` VNet network:
 
 ```shell
