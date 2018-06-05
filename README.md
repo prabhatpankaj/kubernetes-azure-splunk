@@ -101,11 +101,12 @@ for i in 0; do
 
     echo "[Master ${i}] Creating NIC..."
     az network nic create -g kubernetes \
-        -n controller-${i}-nic \
+        -n master-${i}-nic \
         --private-ip-address 10.240.0.1${i} \
         --public-ip-address master-${i}-pip \
         --vnet kubernetes-vnet \
-        --subnet kubernetes-subnet 
+        --subnet kubernetes-subnet \
+        --ip-forwarding > /dev/null
 
     echo "[Master ${i}] Creating VM..."
     az vm create -g kubernetes \
@@ -116,6 +117,7 @@ for i in 0; do
         --availability-set master-as \
         --nsg '' > /dev/null
 done
+
 ```
 
 ### Kubernetes Workers
@@ -131,7 +133,7 @@ az vm availability-set create -g kubernetes -n worker-as
 ```
 
 ```shell
-for i in 0; do
+for i in 0 1; do
     echo "[Worker ${i}] Creating public IP..."
     az network public-ip create -n worker-${i}-pip -g kubernetes > /dev/null
 
@@ -170,4 +172,6 @@ Name          ResourceGroup    PowerState    PublicIps       Location
 ------------  ---------------  ------------  --------------  ----------
 master-0      kubernetes       VM running    XX.XXX.XXX.XXX  westus2
 worker-0      kubernetes       VM running    XX.XXX.XXX.XXX  westus2
+worker-1      kubernetes       VM running    XX.XXX.XXX.XXX  westus2
 ```
+
