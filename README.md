@@ -172,4 +172,29 @@ master-0      kubernetes       VM running    XX.XXX.XXX.XXX  westus2
 worker-0      kubernetes       VM running    XX.XXX.XXX.XXX  westus2
 worker-1      kubernetes       VM running    XX.XXX.XXX.XXX  westus2
 ```
+#  Bootstrapping the Kubernetes master instance
 
+ Login to master instance using the `az` command to find its public IP and ssh to it. Example:
+
+```shell
+CONTROLLER="master-0"
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+  -n ${CONTROLLER}-pip --query "ipAddress" -otsv)
+
+ssh $(whoami)@${PUBLIC_IP_ADDRESS}
+```
+Install kubelet, kubeadm and kubernetes-cni using these command
+
+```shell
+curl -sL https://raw.githubusercontent.com/prabhatpankaj/ubuntustarter/master/initial.sh | sh
+
+curl -sL https://raw.githubusercontent.com/prabhatpankaj/kubernetes-onpremise-ubuntu/master/configure.sh | sh
+```
+```shell
+sed -i '9s/^/Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"\n/' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+```
+Retrieve the internal IP address for the current compute instance:
+
+```shell
+INTERNAL_IP=$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+```
