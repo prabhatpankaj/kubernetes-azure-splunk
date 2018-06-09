@@ -208,3 +208,19 @@ output should contains Network address		- 10.240.0.0
 ```shell
 kubeadm init --ignore-preflight-errors Swap --pod-network-cidr=10.240.0.0/16 --apiserver-advertise-address=$INTERNAL_IP --kubernetes-version v1.10.0
 ```
+
+# Make sure you note down the join token command i.e. 
+
+```
+kubeadm join youripaddress:6443 --token 0daec3.ql0fin8xr87erlc2 --discovery-token-ca-cert-hash sha256:4a52b12b7953f0713c3a4f4f2084cfad9bc003da12180670a46268589eb1a9d5
+```
+# Configure an unprivileged user-account and Take a copy of the Kube config:
+
+```shell
+sudo cp /etc/kubernetes/admin.conf $HOME/
+sudo chown $(id -u):$(id -g) $HOME/admin.conf
+export KUBECONFIG=$HOME/admin.conf
+echo "export KUBECONFIG=$HOME/admin.conf" | tee -a ~/.bashrc
+
+```
+
