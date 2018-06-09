@@ -198,23 +198,25 @@ Retrieve the internal IP address for the current compute instance:
 ```shell
 INTERNAL_IP=$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 ```
-Retieve the NETWORK CIDR 
+```shell
+az vm show -g kubernetes --name master-0 --query "tags" -o tsv
+```
+
+> output
 
 ```shell
-sipcalc $INTERNAL_IP/16
+10.240.0.0/24
 ```
-output should contains Network address		- 10.240.0.0
+Create the cluster
 
 ```shell
 kubeadm init --ignore-preflight-errors Swap --pod-network-cidr=10.240.0.0/16 --apiserver-advertise-address=$INTERNAL_IP --kubernetes-version v1.10.0
 ```
-
-# Make sure you note down the join token command i.e. 
-
-```
+Make sure you note down the join token command i.e. 
+```shell
 kubeadm join youripaddress:6443 --token 0daec3.ql0fin8xr87erlc2 --discovery-token-ca-cert-hash sha256:4a52b12b7953f0713c3a4f4f2084cfad9bc003da12180670a46268589eb1a9d5
 ```
-# Configure an unprivileged user-account and Take a copy of the Kube config:
+Configure an unprivileged user-account and Take a copy of the Kube config:
 
 ```shell
 sudo cp /etc/kubernetes/admin.conf $HOME/
@@ -222,5 +224,33 @@ sudo chown $(id -u):$(id -g) $HOME/admin.conf
 export KUBECONFIG=$HOME/admin.conf
 echo "export KUBECONFIG=$HOME/admin.conf" | tee -a ~/.bashrc
 
+```
+Retrieve the POD CIDR range for the current compute instance and keep it for later.
+
+```shell
+az vm show -g kubernetes --name worker-0 --query "tags" -o tsv
+```
+
+> output
+
+```shell
+10.200.0.0/24
+```
+
+Login to each worker instance using the `az` command to find its public IP and ssh to it. Example:
+
+```shell
+WORKER="worker-0"
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+  -n ${WORKER}-pip --query "ipAddress" -otsv)
+
+ssh $(whoami)@${PUBLIC_IP_ADDRESS}
+```
+Install kubelet, kubeadm and kubernetes-cni using these command
+
+```shell
+curl -sL https://raw.githubusercontent.com/prabhatpankaj/ubuntustarter/master/initial.sh | sh
+
+curl -sL https://raw.githubusercontent.com/prabhatpankaj/kubernetes-onpremise-ubuntu/master/configure.sh | sh
 ```
 
