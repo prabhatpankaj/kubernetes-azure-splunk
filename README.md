@@ -198,3 +198,13 @@ Retrieve the internal IP address for the current compute instance:
 ```shell
 INTERNAL_IP=$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 ```
+Retieve the NETWORK CIDR 
+
+```shell
+sipcalc $INTERNAL_IP/16
+```
+output should contains Network address		- 10.240.0.0
+
+```shell
+kubeadm init --ignore-preflight-errors Swap --pod-network-cidr=10.240.0.0/16 --apiserver-advertise-address=$INTERNAL_IP --kubernetes-version v1.10.0
+```
